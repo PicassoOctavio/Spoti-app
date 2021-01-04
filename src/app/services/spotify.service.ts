@@ -12,27 +12,38 @@ export class SpotifyService {
 
   constructor(private http: HttpClient) { }
 
+  getQuery( query: string ){
+    const URL = `https://api.spotify.com/v1/${ query }`;
+
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer BQDH1tx5ru3gffy26Ru6rscCpKDVSB76-Izukn_JnVg8vsUa0CzGHQ7WBE9VfZHihRZapftQmh1O7xtIcSU'
+    });
+
+    return this.http.get( URL, { headers });
+  }
+
   getNewReleases(){
 
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer BQChiCY0i_dNqkKe4ymUSdY78i4bZlXhRdTOgrlDue6JVGQ_mbdtaqmA_eBso2MnobA9F3q-XtErHQ4DJ8w'
-    });
-
-    return this.http.get('https://api.spotify.com/v1/browse/new-releases', { headers })
-      .pipe( map( data => {
-        return data['albums'].items;
-      }));
+    return this.getQuery('browse/new-releases').pipe( map( (data: any) => data['albums'].items));
   }
 
-  getArtista(termino: string){
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer BQChiCY0i_dNqkKe4ymUSdY78i4bZlXhRdTOgrlDue6JVGQ_mbdtaqmA_eBso2MnobA9F3q-XtErHQ4DJ8w'
-    });
+  getArtistas(termino: string){
+    return this.getQuery(`search?query=${ termino }&type=artist&offset=0&limit=15`).pipe( map( (data: any) => 
+      data['artists'].items));
 
-    return this.http.get(`https://api.spotify.com/v1/search?query=${ termino }&type=artist&offset=0&limit=15`, { headers })
+/*     return this.http.get(`https://api.spotify.com/v1/search?query=${ termino }&type=artist&offset=0&limit=15`, { headers })
     .pipe( map( data => {
       return data['artists'].items;
-    }))
-    //return this.http.get(`https://api.spotify.com/v1/search?query=metallica&type=artist&offset=0&limit=15`, { headers });
+    })) */
   }
+
+  getArtista(id: string){
+    return this.getQuery(`artists/${ id }`);
+  }
+  
+  getTopTracks( id: string){
+    return this.getQuery(`artists/${ id }/top-tracks?country=us`);
+    
+  }
+
 }
